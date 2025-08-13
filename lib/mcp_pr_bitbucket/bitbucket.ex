@@ -2,13 +2,14 @@ defmodule MCPBitbucketPr.Bitbucket do
   @moduledoc false
   @max_diff 200_000
 
-  defstruct [:base_url, :auth_mode, :token, :workspace, :project]
+  defstruct [:base_url, :auth_mode, :token, :username, :workspace, :project]
 
   def new(env \\ System.get_env()) do
     %__MODULE__{
       base_url: fetch!(env, "BITBUCKET_BASE_URL"),
-      auth_mode: env["BITBUCKET_AUTH_MODE"] || "CLOUD_BEARER",
+      auth_mode: env["BITBUCKET_AUTH_MODE"] || "CLOUD_BASIC",
       token: env["BITBUCKET_TOKEN"] || fetch!(env, "BITBUCKET_APP_PASSWORD"),
+      username: env["BITBUCKET_USERNAME"],
       workspace: env["BITBUCKET_WORKSPACE"],
       project: env["BITBUCKET_PROJECT"]
     }
@@ -19,6 +20,14 @@ defmodule MCPBitbucketPr.Bitbucket do
       nil -> raise "#{key} not defined in environment"
       v -> v
     end
+  end
+
+  defp headers(%__MODULE__{auth_mode: "CLOUD_BASIC", username: username, token: token}) do
+    auth_string = Base.encode64("#{username}:#{token}")
+    [
+      {"authorization", "Basic " <> auth_string},
+      {"content-type", "application/json"}
+    ]
   end
 
   defp headers(%__MODULE__{auth_mode: mode, token: token})
@@ -64,7 +73,7 @@ defmodule MCPBitbucketPr.Bitbucket do
         close? \\ false
       ) do
     case bb.auth_mode do
-      "CLOUD_BEARER" ->
+      mode when mode in ["CLOUD_BEARER", "CLOUD_BASIC"] ->
         workspace = bb.workspace || raise "BITBUCKET_WORKSPACE is required for Cloud"
 
         body = %{
@@ -102,7 +111,7 @@ defmodule MCPBitbucketPr.Bitbucket do
 
   def get_pull_request(bb, repo, pr_id) do
     case bb.auth_mode do
-      "CLOUD_BEARER" ->
+      mode when mode in ["CLOUD_BEARER", "CLOUD_BASIC"] ->
         workspace = bb.workspace || raise "BITBUCKET_WORKSPACE is required for Cloud"
 
         req!(
@@ -124,7 +133,7 @@ defmodule MCPBitbucketPr.Bitbucket do
 
   def get_diffstat(bb, repo, pr_id) do
     case bb.auth_mode do
-      "CLOUD_BEARER" ->
+      mode when mode in ["CLOUD_BEARER", "CLOUD_BASIC"] ->
         workspace = bb.workspace || raise "BITBUCKET_WORKSPACE is required for Cloud"
 
         req!(
@@ -150,7 +159,7 @@ defmodule MCPBitbucketPr.Bitbucket do
   def get_diff(bb, repo, pr_id) do
     raw =
       case bb.auth_mode do
-        "CLOUD_BEARER" ->
+        mode when mode in ["CLOUD_BEARER", "CLOUD_BASIC"] ->
           workspace = bb.workspace || raise "BITBUCKET_WORKSPACE is required for Cloud"
 
           req!(
@@ -180,7 +189,7 @@ defmodule MCPBitbucketPr.Bitbucket do
 
   def get_comments(bb, repo, pr_id) do
     case bb.auth_mode do
-      "CLOUD_BEARER" ->
+      mode when mode in ["CLOUD_BEARER", "CLOUD_BASIC"] ->
         workspace = bb.workspace || raise "BITBUCKET_WORKSPACE is required for Cloud"
 
         req!(
@@ -211,7 +220,7 @@ defmodule MCPBitbucketPr.Bitbucket do
     line = Map.get(c, "line")
 
     case bb.auth_mode do
-      "CLOUD_BEARER" ->
+      mode when mode in ["CLOUD_BEARER", "CLOUD_BASIC"] ->
         workspace = bb.workspace || raise "BITBUCKET_WORKSPACE is required for Cloud"
 
         body =
