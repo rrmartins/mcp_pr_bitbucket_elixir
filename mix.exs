@@ -7,7 +7,7 @@ defmodule McpPrBitbucketElixir.MixProject do
       version: "0.1.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      escript: [main_module: MCPBitbucketPr.CLI],
+      escript: [main_module: MCPBitbucketPr.CLI, name: :mcp_pr_bitbucket_elixir],
       deps: deps()
     ]
   end
