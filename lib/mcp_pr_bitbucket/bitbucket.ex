@@ -37,7 +37,7 @@ defmodule MCPBitbucketPr.Bitbucket do
       |> maybe_body(body)
 
     resp = Req.request!(opts)
-    ct = resp.headers |> Enum.into(%{}) |> Map.get("content-type", "")
+    ct = resp.headers |> Enum.into(%{}) |> Map.get("content-type", "") |> to_string()
 
     cond do
       is_binary(resp.body) and String.starts_with?(ct, "text/") ->
