@@ -144,8 +144,10 @@ defmodule MCPBitbucketPr.CLI do
 
   defp handle_message(%{"method" => _} = msg) do
     resp = Server.handle(msg)
-    IO.write(Jason.encode!(resp))
-    IO.write("\n")
+    if resp do
+      IO.write(Jason.encode!(resp))
+      IO.write("\n")
+    end
     :ok
   end
 
