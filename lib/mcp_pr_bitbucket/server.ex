@@ -138,6 +138,11 @@ defmodule MCPBitbucketPr.Server do
     end
   end
 
+  def handle(%{"method" => "notifications/initialized"}) do
+    # Notification - no response needed
+    nil
+  end
+
   def handle(%{"id" => id}) do
     JSONRPC.error(id, -32601, "Method not implemented")
   end
