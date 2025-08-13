@@ -8,7 +8,7 @@ defmodule MCPBitbucketPr.Bitbucket do
     %__MODULE__{
       base_url: fetch!(env, "BITBUCKET_BASE_URL"),
       auth_mode: env["BITBUCKET_AUTH_MODE"] || "CLOUD_BEARER",
-      token: fetch!(env, "BITBUCKET_TOKEN"),
+      token: env["BITBUCKET_TOKEN"] || fetch!(env, "BITBUCKET_APP_PASSWORD"),
       workspace: env["BITBUCKET_WORKSPACE"],
       project: env["BITBUCKET_PROJECT"]
     }
