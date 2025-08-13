@@ -4,7 +4,51 @@ defmodule MCPBitbucketPr.CLI do
 
   # Reads JSON-RPC from STDIN; messages may come multi-line.
   # Strategy: buffer until we can decode a valid JSON.
-  def main(_args \\ []) do
+  def main(args \\ []) do
+    case args do
+      ["--version"] -> print_version()
+      ["-v"] -> print_version()
+      ["--help"] -> print_help()
+      ["-h"] -> print_help()
+      [] -> start_server()
+      _ -> 
+        IO.puts("Unknown arguments: #{Enum.join(args, " ")}")
+        print_help()
+        System.halt(1)
+    end
+  end
+
+  defp print_version do
+    IO.puts("mcp-bitbucket-elixir 0.1.0")
+    System.halt(0)
+  end
+
+  defp print_help do
+    IO.puts("""
+    MCP Bitbucket Elixir - Model Context Protocol server for Bitbucket integration
+
+    Usage:
+      mcp_pr_bitbucket_elixir [OPTIONS]
+
+    Options:
+      --version, -v    Show version information
+      --help, -h       Show this help message
+
+    When run without arguments, starts the MCP server and listens for JSON-RPC messages on stdin.
+
+    Environment Variables:
+      BITBUCKET_USERNAME      Your Bitbucket username
+      BITBUCKET_APP_PASSWORD  Your Bitbucket app password
+
+    Available Tools:
+      - create_pull_request      Create a new pull request
+      - get_pull_request_context Get PR metadata, diff, and comments
+      - post_review_comments     Post review comments to a PR
+    """)
+    System.halt(0)
+  end
+
+  defp start_server do
     # load .env if it exists
     _ = Dotenvy.source(["~/.env", ".env"])
 
