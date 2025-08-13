@@ -24,7 +24,9 @@ defmodule McpPrBitbucketElixir.MixProject do
     [
       {:jason, "~> 1.4"},
       {:req, "~> 0.5"},
-      {:dotenvy, "~> 0.8"}
+      {:dotenvy, "~> 0.8"},
+      {:mox, "~> 1.0", only: :test},
+      {:bypass, "~> 2.1", only: :test}
     ]
   end
 end
